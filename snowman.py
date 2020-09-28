@@ -67,7 +67,7 @@ class Dictionary:
             if word not in forbidden:
                 break
         return word
-        
+
 
 class Game:
     snowman = (
@@ -150,30 +150,14 @@ class Game:
         self.words_used = set()
         self.letters_missed = set()
         self.letters_used = set()
-        self.dict_path = Path("dictionaries", f"{lang}.txt").resolve()
-        self.dict_len = self.find_dict_len()
+        self.dictionary = Dictionary(lang)
         self.word_to_guess = self.draw_random_word()
-        self.word_mask = [0]*len(self.word_to_guess)
-
-    def find_dict_len(self):
-        """
-        docstring
-        """
-        with open(self.dict_path) as file:
-            for i, _ in enumerate(file.readlines(), 1):
-                pass
-        return i
 
     def draw_random_word(self):
-        word = None
-        while True:
-            idx = randint(1, self.dict_len)
-            word = linecache.getline(str(self.dict_path), idx).rstrip()
-            if word not in self.words_used:
-                break
+        word = self.dictionary.draw_random_word()
         self.words_used.add(word)
         return word
-
+    
     def show_game(self):
         return f"{self.__get_snowman()}\n\n" \
                f"{'WORD TO GUESS:':<20}{self.__get_word_to_guess()}\n\n" \
@@ -184,7 +168,7 @@ class Game:
         return self.snowman[len(self.letters_missed)]
 
     def __get_word_to_guess(self):
-        return " ".join([sign[0].upper() if sign[1]==1 else "_" for sign in zip(self.word_to_guess, self.word_mask)])
+        return self.word_to_guess.get_word()
     
     def __get_missed_letters(self):
         return ", ".join(sorted([let.upper() for let in self.letters_missed]))
@@ -205,24 +189,13 @@ class Game:
     def process_letter(self, letter):
         if letter in self.letters_used:
             return False
-        if letter in self.word_to_guess:
-            self.__update_word_mask(letter)
-        else:
+        if not self.word_to_guess.is_in_word(letter):
             self.letters_missed.add(letter)
         self.letters_used.add(letter)
         return True
 
-    def __update_word_mask(self, letter):
-        idx = 0
-        while True:
-            idx = self.word_to_guess.find(letter, idx)
-            if idx == -1:
-                return
-            self.word_mask[idx] = 1
-            idx += 1
-
     def is_win(self):
-        return len(self.word_to_guess) == sum(self.word_mask)
+        return self.word_to_guess.is_word_guessed()
 
     def is_lost(self):
         return len(self.letters_missed) == len(self.snowman)-1
@@ -230,5 +203,4 @@ class Game:
     def reset_game_state(self):
         self.letters_missed = set()
         self.letters_used = set()
-        self.word_to_guess = self.draw_random_word()
-        self.word_mask = [0]*len(self.word_to_guess)    
+        self.word_to_guess = self.draw_random_word()  
