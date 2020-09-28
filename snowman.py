@@ -47,6 +47,28 @@ class Word:
         self.mask = [1]*len(self.word)
 
 
+class Dictionary:
+
+    def __init__(self, lang):
+        self.file_path = Path("dictionaries", f"{lang}.txt").resolve()
+        self.length = self.find_dict_len()
+
+    def find_dict_len(self):
+        with open(self.file_path) as file:
+            for i, _ in enumerate(file.readlines(), 1):
+                pass
+        return i
+
+    def draw_random_word(self, forbidden):
+        word = None
+        while True:
+            idx = randint(1, self.length)
+            word = Word(linecache.getline(str(self.file_path), idx).rstrip())
+            if word not in forbidden:
+                break
+        return word
+        
+
 class Game:
     snowman = (
 """
