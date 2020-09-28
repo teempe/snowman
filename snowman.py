@@ -4,6 +4,49 @@ import linecache
 import string
 
 
+class Word:
+    
+    def __init__(self, word):
+        self.word = word
+        self.mask = [0]*len(word)
+
+    def __eq__(self, other):
+        return self.word == other.word
+
+    def __ne__(self, other):
+        return self.word != other.word
+    
+    def __hash__(self):
+        return hash(self.word)
+
+    def __str__(self):
+        return self.word
+
+    def is_in_word(self, letter):
+        if letter in self.word:
+            self.__update_mask(letter)
+            return True
+        return False
+
+    def __update_mask(self, letter):
+        idx = 0
+        while True:
+            idx = self.word.find(letter, idx)
+            if idx == -1:
+                break
+            self.mask[idx] = 1
+            idx += 1
+
+    def is_word_guessed(self):
+        return len(self.word) == sum(self.mask)
+
+    def get_word(self):
+        return " ".join([sign[0].upper() if sign[1]==1 else "_" for sign in zip(self.word, self.mask)])
+
+    def set_mask_true(self):
+        self.mask = [1]*len(self.word)
+
+
 class Game:
     snowman = (
 """
