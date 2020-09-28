@@ -154,7 +154,7 @@ class Game:
         self.word_to_guess = self.draw_random_word()
 
     def draw_random_word(self):
-        word = self.dictionary.draw_random_word()
+        word = self.dictionary.draw_random_word(self.words_used)
         self.words_used.add(word)
         return word
     
